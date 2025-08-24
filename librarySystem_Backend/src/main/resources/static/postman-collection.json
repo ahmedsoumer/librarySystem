@@ -1,0 +1,105 @@
+{
+  "info": {
+    "name": "Library Management System API",
+    "description": "Complete collection for testing the 5 core endpoints of the Library Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "library-system-api-collection"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Register Borrower",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/library/borrowers",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "library", "borrowers"]
+        },
+        "description": "Register a new borrower in the library system"
+      },
+      "response": []
+    },
+    {
+      "name": "2. Register Book",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"isbn\": \"978-0134685991\",\n  \"title\": \"Effective Java\",\n  \"author\": \"Joshua Bloch\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/library/books",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "library", "books"]
+        },
+        "description": "Register a new book in the library catalog"
+      },
+      "response": []
+    },
+    {
+      "name": "3. Get All Books",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/library/books",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "library", "books"]
+        },
+        "description": "Retrieve all books in the library"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Borrow Book",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/library/borrow/1/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "library", "borrow", "1", "1"]
+        },
+        "description": "Borrow a book (borrowerId=1, bookId=1)"
+      },
+      "response": []
+    },
+    {
+      "name": "5. Return Book",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/library/return/1/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "library", "return", "1", "1"]
+        },
+        "description": "Return a borrowed book (borrowerId=1, bookId=1)"
+      },
+      "response": []
+    }
+  ]
+}

@@ -1,0 +1,350 @@
+openapi: 3.0.3
+info:
+  title: Library Management System API
+  description: REST API for managing library books and borrowers with 5 core endpoints
+  version: 1.0.0
+  contact:
+    name: Library System Team
+    email: support@librarysystem.com
+
+servers:
+  - url: http://localhost:8081
+    description: Development server
+  - url: http://localhost:8080
+    description: Alternative development server
+
+tags:
+  - name: Library Management
+    description: API for managing library books and borrowers
+
+paths:
+  /api/library/borrowers:
+    post:
+      tags:
+        - Library Management
+      summary: Register a new borrower
+      description: Creates a new borrower in the library system
+      operationId: registerBorrower
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BorrowerRegistrationRequest'
+            example:
+              name: "John Doe"
+              email: "john.doe@example.com"
+      responses:
+        '201':
+          description: Borrower registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BorrowerResponse'
+              example:
+                id: 1
+                name: "John Doe"
+                email: "john.doe@example.com"
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/library/books:
+    post:
+      tags:
+        - Library Management
+      summary: Register a new book
+      description: Adds a new book to the library catalog
+      operationId: registerBook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookRegistrationRequest'
+            example:
+              isbn: "978-0134685991"
+              title: "Effective Java"
+              author: "Joshua Bloch"
+      responses:
+        '201':
+          description: Book registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+              example:
+                id: 1
+                isbn: "978-0134685991"
+                title: "Effective Java"
+                author: "Joshua Bloch"
+                available: true
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - Library Management
+      summary: Get all books
+      description: Retrieves a list of all books in the library
+      operationId: getAllBooks
+      responses:
+        '200':
+          description: Books retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookResponse'
+              example:
+                - id: 1
+                  isbn: "978-0134685991"
+                  title: "Effective Java"
+                  author: "Joshua Bloch"
+                  available: true
+                - id: 2
+                  isbn: "978-0321356680"
+                  title: "Effective Java Second Edition"
+                  author: "Joshua Bloch"
+                  available: false
+
+  /api/library/borrow/{borrowerId}/{bookId}:
+    post:
+      tags:
+        - Library Management
+      summary: Borrow a book
+      description: Creates a borrow record for a borrower and book
+      operationId: borrowBook
+      parameters:
+        - name: borrowerId
+          in: path
+          required: true
+          description: ID of the borrower
+          schema:
+            type: integer
+            format: int64
+            example: 1
+        - name: bookId
+          in: path
+          required: true
+          description: ID of the book to borrow
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '201':
+          description: Book borrowed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BorrowOperationResponse'
+              example:
+                id: 1
+                borrower:
+                  id: 1
+                  name: "John Doe"
+                  email: "john.doe@example.com"
+                book:
+                  id: 1
+                  isbn: "978-0134685991"
+                  title: "Effective Java"
+                  author: "Joshua Bloch"
+                borrowDate: "2025-01-24T12:00:00"
+                returnDate: null
+                status: "BORROWED"
+        '400':
+          description: Invalid borrower or book ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Book is not available for borrowing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/library/return/{borrowerId}/{bookId}:
+    post:
+      tags:
+        - Library Management
+      summary: Return a book
+      description: Marks a borrowed book as returned
+      operationId: returnBook
+      parameters:
+        - name: borrowerId
+          in: path
+          required: true
+          description: ID of the borrower
+          schema:
+            type: integer
+            format: int64
+            example: 1
+        - name: bookId
+          in: path
+          required: true
+          description: ID of the book to return
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: Book returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BorrowOperationResponse'
+              example:
+                id: 1
+                borrower:
+                  id: 1
+                  name: "John Doe"
+                  email: "john.doe@example.com"
+                book:
+                  id: 1
+                  isbn: "978-0134685991"
+                  title: "Effective Java"
+                  author: "Joshua Bloch"
+                borrowDate: "2025-01-24T12:00:00"
+                returnDate: "2025-01-24T14:00:00"
+                status: "RETURNED"
+        '400':
+          description: Invalid borrower or book ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: No active borrow record found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    BorrowerRegistrationRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+
+    BookRegistrationRequest:
+      type: object
+      required:
+        - isbn
+        - title
+        - author
+      properties:
+        isbn:
+          type: string
+          pattern: '^978-\d{10}$'
+          example: "978-0134685991"
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          example: "Effective Java"
+        author:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "Joshua Bloch"
+
+    BorrowerResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+
+    BookResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        isbn:
+          type: string
+          example: "978-0134685991"
+        title:
+          type: string
+          example: "Effective Java"
+        author:
+          type: string
+          example: "Joshua Bloch"
+        available:
+          type: boolean
+          example: true
+
+    BorrowOperationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        borrower:
+          $ref: '#/components/schemas/BorrowerResponse'
+        book:
+          $ref: '#/components/schemas/BookResponse'
+        borrowDate:
+          type: string
+          format: date-time
+          example: "2025-01-24T12:00:00"
+        returnDate:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-01-24T14:00:00"
+        status:
+          type: string
+          enum: [BORROWED, RETURNED]
+          example: "BORROWED"
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "Invalid input data"
+        details:
+          type: object
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-01-24T12:00:00"
